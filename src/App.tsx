@@ -31,7 +31,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 const Navbar = ({ onAuthClick }: { onAuthClick: (type: 'signin' | 'signup') => void }) => {
   return (
-    <nav className="bg-irembo-blue text-white py-4 px-6 fixed top-0 w-full z-50 shadow-md">
+    <nav className="bg-irembo-blue text-white py-4 px-6 w-full shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="text-3xl font-bold tracking-tight flex items-center">
@@ -68,7 +68,7 @@ const Navbar = ({ onAuthClick }: { onAuthClick: (type: 'signin' | 'signup') => v
 };
 
 const AnnouncementBar = () => (
-  <div className="bg-[#FFFBCC] text-slate-900 py-3 px-6 mt-[64px] flex items-center justify-center gap-3 font-medium text-sm border-b border-irembo-yellow/20">
+  <div className="bg-[#FFCB05] text-slate-900 py-3 px-6 flex items-center justify-center gap-3 font-medium text-sm border-b border-[#f0bf00]">
     <div className="flex items-center gap-2">
       <Bell size={18} className="text-irembo-orange animate-pulse" />
       <p>New! The fiscal year 2026/2027 has started. Pay for your family’s mutuelle coverage <span className="text-irembo-blue font-bold underline cursor-pointer">here</span></p>
@@ -78,7 +78,7 @@ const AnnouncementBar = () => (
 
 const Hero = () => {
   return (
-    <header className="bg-irembo-blue text-white pt-24 pb-48 px-6 relative overflow-hidden bg-[url('https://irembo.gov.rw/home/assets/img/hero-bg.svg')] bg-cover bg-center">
+    <header className="bg-irembo-blue text-white pt-12 pb-16 px-6 relative overflow-hidden bg-[url('https://irembo.gov.rw/home/assets/img/hero-bg.svg')] bg-cover bg-center min-h-[360px]">
       <div className="max-w-3xl mx-auto text-center relative z-10">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
@@ -213,8 +213,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar onAuthClick={openAuth} />
       <AnnouncementBar />
+      <Navbar onAuthClick={openAuth} />
       <Hero />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 -mt-20 relative z-20 space-y-12 pb-20">
