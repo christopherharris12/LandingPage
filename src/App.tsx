@@ -148,7 +148,7 @@ const AuthModal = ({ isOpen, onClose, type }: { isOpen: boolean, onClose: () => 
                 <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                 <input 
                   type="text" 
-                  placeholder="John Doe"
+                  placeholder="Christopher Harris"
                   className="w-full border border-slate-200 rounded-lg py-2.5 px-4 focus:outline-none focus:border-irembo-blue transition-colors"
                 />
               </div>
@@ -157,7 +157,7 @@ const AuthModal = ({ isOpen, onClose, type }: { isOpen: boolean, onClose: () => 
               <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
               <input 
                 type="email" 
-                placeholder="name@example.com"
+                placeholder="christopherharis12@gmail.com"
                 className="w-full border border-slate-200 rounded-lg py-2.5 px-4 focus:outline-none focus:border-irembo-blue transition-colors"
               />
             </div>
