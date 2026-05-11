@@ -285,27 +285,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sticky Alert (Top right floating) */}
-        <motion.div 
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="fixed bottom-10 right-10 z-[80] max-w-sm"
-        >
-          <div className="bg-irembo-orange text-white p-5 rounded-xl shadow-2xl relative">
-            <button className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded">
-              <X size={16} />
-            </button>
-            <div className="flex gap-4">
-              <Info size={24} className="shrink-0" />
-              <div className="space-y-2">
-                <p className="text-sm font-bold">Imbogamizi mu kwishyura Mituweli, Temporary disruption in...</p>
-                <p className="text-[10px] opacity-80 uppercase tracking-widest font-black">Last updated 2 hours ago</p>
-                <button className="text-xs font-bold underline">View latest updates</button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
       </main>
 
       {/* Footer */}
