@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { 
   Search, 
   HelpCircle, 
@@ -14,27 +15,38 @@ import {
   SearchIcon,
   Bell,
   ArrowRight,
-  Info,
   X,
   ExternalLink,
-  Users,
-  CreditCard,
-  Briefcase,
-  Plane,
-  Home,
-  ShieldCheck,
-  FileText
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-// --- Components ---
+const SPLASH_MINIMUM_MS = 1400;
+
+const SplashScreen = () => (
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-b from-white via-slate-50 to-blue-50">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center gap-6 text-center"
+    >
+      <div className="text-5xl font-black tracking-tight text-irembo-blue">
+        irembo<span className="font-light text-sky-500">Gov</span>
+      </div>
+      <div className="h-12 w-12 rounded-full border-4 border-irembo-blue/15 border-t-irembo-blue animate-spin" />
+      <p className="text-sm font-medium text-slate-500">Loading services...</p>
+    </motion.div>
+  </div>
+);
+
+// --- Navbar ---
 
 const Navbar = ({ onAuthClick }: { onAuthClick: (type: 'signin' | 'signup') => void }) => {
   return (
     <nav className="bg-irembo-blue text-white py-4 px-6 w-full shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="text-3xl font-bold tracking-tight flex items-center">
+          <div className="text-3xl font-bold tracking-tight flex items-center cursor-pointer hover:opacity-80 transition-opacity">
             irembo<span className="font-extralight ml-1">Gov</span>
           </div>
         </div>
@@ -71,12 +83,24 @@ const AnnouncementBar = () => (
   <div className="bg-[#FFCB05] text-slate-900 py-3 px-6 flex items-center justify-center gap-3 font-medium text-sm border-b border-[#f0bf00]">
     <div className="flex items-center gap-2">
       <Bell size={18} className="text-irembo-orange animate-pulse" />
-      <p>New! The fiscal year 2026/2027 has started. Pay for your family’s mutuelle coverage <span className="text-irembo-blue font-bold underline cursor-pointer">here</span></p>
+      <p>New! The fiscal year 2026/2027 has started. Pay for your family's mutuelle coverage <span className="text-irembo-blue font-bold underline cursor-pointer">here</span></p>
     </div>
   </div>
 );
 
-const Hero = () => {
+// --- Hero Section ---
+
+const Hero = ({ services }: { services: any }) => {
+  const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      navigate(`/dashboard?search=${encodeURIComponent(searchInput)}`);
+    }
+  };
+
   return (
     <header className="bg-irembo-blue text-white pt-12 pb-16 px-6 relative overflow-hidden bg-[url('https://irembo.gov.rw/home/assets/img/hero-bg.svg')] bg-cover bg-center min-h-[360px]">
       <div className="max-w-3xl mx-auto text-center relative z-10">
@@ -89,12 +113,16 @@ const Hero = () => {
         </motion.h1>
         
         <div className="relative max-w-3xl mx-auto">
-          <input 
-            type="text" 
-            placeholder="Search for services" 
-            className="w-full bg-white text-slate-800 rounded-lg py-5 pl-14 pr-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] focus:outline-none focus:ring-4 focus:ring-irembo-yellow/20 transition-all text-xl"
-          />
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={28} />
+          <form onSubmit={handleSearch}>
+            <input 
+              type="text" 
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search for services" 
+              className="w-full bg-white text-slate-800 rounded-lg py-5 pl-14 pr-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] focus:outline-none focus:ring-4 focus:ring-irembo-yellow/20 transition-all text-xl"
+            />
+          </form>
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={28} />
         </div>
       </div>
 
@@ -104,17 +132,7 @@ const Hero = () => {
   );
 };
 
-const ServiceCard = ({ title, icon }: { title: string, icon: React.ReactNode }) => (
-  <div className="bg-white border border-slate-100 p-6 rounded-xl hover:shadow-lg transition-all cursor-pointer group hover:border-irembo-blue/20">
-    <div className="flex items-center justify-between mb-4">
-      <div className="p-3 bg-slate-50 rounded-lg text-irembo-blue group-hover:bg-irembo-blue group-hover:text-white transition-all">
-        {icon}
-      </div>
-      <ExternalLink size={16} className="text-slate-300 group-hover:text-irembo-blue" />
-    </div>
-    <h3 className="font-semibold text-slate-800 group-hover:text-irembo-blue transition-colors">{title}</h3>
-  </div>
-);
+// --- Auth Modal ---
 
 const AuthModal = ({ isOpen, onClose, type }: { isOpen: boolean, onClose: () => void, type: 'signin' | 'signup' }) => {
   if (!isOpen) return null;
@@ -189,33 +207,14 @@ const AuthModal = ({ isOpen, onClose, type }: { isOpen: boolean, onClose: () => 
   );
 };
 
-// --- Main Page ---
+// --- Landing Page ---
 
-export default function App() {
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authType, setAuthType] = useState<'signin' | 'signup'>('signin');
-  const [services, setServices] = useState<any>(null);
-
-  useEffect(() => {
-    fetch("/api/services")
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then(data => setServices(data))
-      .catch(err => console.error("Irembo Services Load Failed:", err));
-  }, []);
-
-  const openAuth = (type: 'signin' | 'signup') => {
-    setAuthType(type);
-    setIsAuthOpen(true);
-  };
-
+const LandingPage = ({ services, onAuthClick }: { services: any, onAuthClick: (type: 'signin' | 'signup') => void }) => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <AnnouncementBar />
-      <Navbar onAuthClick={openAuth} />
-      <Hero />
+      <Navbar onAuthClick={onAuthClick} />
+      <Hero services={services} />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 -mt-20 relative z-20 space-y-12 pb-20">
         
@@ -327,16 +326,218 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      <AnimatePresence>
-        {isAuthOpen && (
-          <AuthModal 
-            isOpen={isAuthOpen} 
-            onClose={() => setIsAuthOpen(false)} 
-            type={authType} 
-          />
-        )}
-      </AnimatePresence>
     </div>
+  );
+};
+
+// --- Dashboard ---
+
+const Dashboard = ({ services }: { services: any }) => {
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(window.location.search);
+  const searchQuery = queryParams.get("search") || "";
+  const [isLoading, setIsLoading] = useState(true);
+  const [filteredServices, setFilteredServices] = useState<any>(null);
+
+  useEffect(() => {
+    // Simulate search loading
+    const timer = setTimeout(() => {
+      if (services) {
+        const query = searchQuery.toLowerCase();
+        const filtered = {
+          family: services.family?.filter((s: string) => s.toLowerCase().includes(query)) || [],
+          identification: services.identification?.filter((s: string) => s.toLowerCase().includes(query)) || [],
+          land: services.land?.filter((s: string) => s.toLowerCase().includes(query)) || [],
+        };
+        setFilteredServices(filtered);
+      }
+      setIsLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, services]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-6 text-center"
+        >
+          <div className="h-16 w-16 rounded-full border-4 border-irembo-blue/15 border-t-irembo-blue animate-spin" />
+          <p className="text-slate-500 font-medium">Searching for "{searchQuery}"...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const totalResults = (filteredServices?.family?.length || 0) + 
+                       (filteredServices?.identification?.length || 0) + 
+                       (filteredServices?.land?.length || 0);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <AnnouncementBar />
+      <Navbar onAuthClick={() => {}} />
+
+      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
+        {/* Back Button & Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-irembo-blue hover:text-blue-700 font-medium transition-colors mb-6"
+          >
+            <ArrowLeft size={20} />
+            Back to Home
+          </button>
+
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+            Search Results
+          </h1>
+          <p className="text-slate-600 text-lg">
+            Found {totalResults} service{totalResults !== 1 ? 's' : ''} matching "{searchQuery}"
+          </p>
+        </div>
+
+        {totalResults === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl p-12 text-center border border-slate-200"
+          >
+            <SearchIcon size={48} className="mx-auto text-slate-300 mb-4" />
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">No services found</h2>
+            <p className="text-slate-500">Try searching with different keywords</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-12"
+          >
+            {/* Family Services */}
+            {filteredServices?.family?.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold text-slate-900 border-l-4 border-irembo-blue pl-4 mb-6">
+                  Family Services ({filteredServices.family.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredServices.family.map((service: string) => (
+                    <div
+                      key={service}
+                      className="bg-white p-6 rounded-lg border border-slate-200 hover:border-irembo-blue hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      <p className="font-medium text-slate-800 hover:text-irembo-blue transition-colors">
+                        {service}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Identification Services */}
+            {filteredServices?.identification?.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold text-slate-900 border-l-4 border-irembo-blue pl-4 mb-6">
+                  Identification Services ({filteredServices.identification.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredServices.identification.map((service: string) => (
+                    <div
+                      key={service}
+                      className="bg-white p-6 rounded-lg border border-slate-200 hover:border-irembo-blue hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      <p className="font-medium text-slate-800 hover:text-irembo-blue transition-colors">
+                        {service}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Land Services */}
+            {filteredServices?.land?.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold text-slate-900 border-l-4 border-irembo-blue pl-4 mb-6">
+                  Land Services ({filteredServices.land.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredServices.land.map((service: string) => (
+                    <div
+                      key={service}
+                      className="bg-white p-6 rounded-lg border border-slate-200 hover:border-irembo-blue hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      <p className="font-medium text-slate-800 hover:text-irembo-blue transition-colors">
+                        {service}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </motion.div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+// --- Main App ---
+
+export default function App() {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authType, setAuthType] = useState<'signin' | 'signup'>('signin');
+  const [services, setServices] = useState<any>(null);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+  useEffect(() => {
+    const splashTimer = window.setTimeout(() => {
+      setIsSplashVisible(false);
+    }, SPLASH_MINIMUM_MS);
+
+    fetch("/api/services")
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => setServices(data))
+      .catch(err => console.error("Irembo Services Load Failed:", err));
+
+    return () => window.clearTimeout(splashTimer);
+  }, []);
+
+  const openAuth = (type: 'signin' | 'signup') => {
+    setAuthType(type);
+    setIsAuthOpen(true);
+  };
+
+  return (
+    <>
+      <AnimatePresence>
+        {isSplashVisible && <SplashScreen />}
+      </AnimatePresence>
+
+      <div className={`transition-opacity duration-500 ${isSplashVisible ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage services={services} onAuthClick={openAuth} />} />
+            <Route path="/dashboard" element={<Dashboard services={services} />} />
+          </Routes>
+        </BrowserRouter>
+
+        <AnimatePresence>
+          {isAuthOpen && (
+            <AuthModal 
+              isOpen={isAuthOpen} 
+              onClose={() => setIsAuthOpen(false)} 
+              type={authType} 
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 }
